@@ -54,9 +54,9 @@ def main():
             # Build trade message
             offered_team = teams[tx['offered_entry']]
             received_team = teams[tx['received_entry']]
-            element_in_name = players[tx['tradeitem_set'][0]['element_in']]
-            element_out_name = players[tx['tradeitem_set'][0]['element_out']]
-            message = f"🚨 New Trade Alert 🚨\n{offered_team} traded {element_in_name} ➡ {received_team} with {element_out_name}"
+            ins = "\n".join([players[trade_item['element_in']] for trade_item in tx['tradeitem_set']])
+            outs = "\n".join([players[trade_item['element_out']] for trade_item in tx['tradeitem_set']])
+            message = f"🚨 New Trade Alert 🚨\n*{offered_team}*\n{ins}\n ↔️ \n*{received_team}*\n{outs}"
             print(message)
             send_whatsapp_message(message)
             save_last_trade_id(trade_id)
