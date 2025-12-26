@@ -6,9 +6,17 @@ from notifiers.new_trade_notifier import NewTradeNotifier
 from repo.state import State
 import logging
 
-
 def main():
-    logging.basicConfig(filename='fpl_notifier.log', level=logging.INFO)
+    logging.basicConfig(
+        filename='fpl_notifier.log',
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+    )
+
+    logger = logging.getLogger(__name__)
+
+    logger.info(f"Running fpl notifier")
 
     config = Config()
 
@@ -24,6 +32,8 @@ def main():
 
     gameweek_notifier.check_and_notify_waiver()
     new_trade_notifier.check_and_notify_new_trade()
+
+    logger.info(f"Finished fpl notifier")
 
 if __name__ == "__main__":
     main()
