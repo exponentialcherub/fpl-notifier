@@ -1,0 +1,9 @@
+{
+  "league_id": "12557",
+  "notifier_state_path": "notifier_state.json",
+  "last_trade_file_path": "last_trade_id.json",
+  "gameweeks_path": "gameweeks.json",
+  "notify_within_seconds": 43200,
+  "queue_publish_url": "http://localhost:5001/publish/notify",
+  "fpl_domain": "https://draft.premierleague.com/api"
+}

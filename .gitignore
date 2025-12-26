@@ -1,2 +1,5 @@
 .idea
 last_trade_id.json
+**/__pycache__/**
+*.log
+notifier_state.json
