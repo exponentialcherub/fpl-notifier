@@ -2,11 +2,13 @@ import requests
 import os
 import json
 
-GAMEWEEKS = "./resources/gameweeks.json"
-
 class FplAPI(object):
     def __init__(self, draft_domain):
         self.draft_domain = draft_domain
+        self._gameweeks_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "resources", "gameweeks.json"
+        )
 
     def get_teams(self, league_id):
         league_details = requests.get(f"{self.draft_domain}/league/{league_id}/details").json()
@@ -24,9 +26,9 @@ class FplAPI(object):
         r.raise_for_status()
         return r.json()['trades']
 
-    @staticmethod
-    def get_gameweek_details():
-        if os.path.exists(GAMEWEEKS):
-            with open(GAMEWEEKS, "r") as f:
+    def get_gameweek_details(self):
+        gameweeks_path = os.path.abspath(self._gameweeks_path)
+        if os.path.exists(gameweeks_path):
+            with open(gameweeks_path, "r") as f:
                 return json.load(f).get("events")["data"]
         return None
