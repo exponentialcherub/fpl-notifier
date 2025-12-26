@@ -1,0 +1,29 @@
+from api.fpl_api import FplAPI
+from api.notify_api import NotifyApi
+from config.config import Config
+from notifiers.gameweek_notifier import GameweekNotifier
+from notifiers.new_trade_notifier import NewTradeNotifier
+from repo.state import State
+import logging
+
+
+def main():
+    logging.basicConfig(filename='fpl_notifier.log', level=logging.INFO)
+
+    config = Config()
+
+    state = State(config.last_trade_file_path, config.notifier_state_path)
+
+    fpl_api = FplAPI(config.fpl_domain)
+    notify_api = NotifyApi(config.fpl_domain)
+
+    gameweeks = fpl_api.get_gameweek_details()
+
+    gameweek_notifier = GameweekNotifier(state, gameweeks, config.notify_within_seconds, notify_api)
+    new_trade_notifier = NewTradeNotifier(fpl_api, notify_api, config.league_id, state)
+
+    gameweek_notifier.check_and_notify_waiver()
+    new_trade_notifier.check_and_notify_new_trade()
+
+if __name__ == "__main__":
+    main()
