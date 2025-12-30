@@ -12,7 +12,7 @@ def _run():
     state = State(config.last_trade_file_path, config.notifier_state_path)
 
     fpl_api = FplAPI(config.fpl_domain)
-    notify_api = NotifyApi(config.fpl_domain)
+    notify_api = NotifyApi(config.queue_publish_url)
 
     gameweeks = fpl_api.get_gameweek_details()
 
