@@ -2,6 +2,8 @@ from api.fpl_api import FplAPI
 from config.config import Config
 import json
 import os
+import sys
+from datetime import datetime, timezone
 
 def load_cup_config():
     """Load the cup configuration"""
@@ -11,6 +13,28 @@ def load_cup_config():
     )
     with open(cup_config_path, 'r') as f:
         return json.load(f)
+
+def get_current_gameweek():
+    """Get the current gameweek from gameweeks.json"""
+    gameweeks_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "resources", "gameweeks.json"
+    )
+    
+    with open(gameweeks_path, 'r') as f:
+        data = json.load(f)
+    
+    now = datetime.now(timezone.utc)
+    
+    # Find current gameweek
+    for event in data['events']['data']:
+        deadline = datetime.fromisoformat(event['deadline_time'])
+        if now < deadline:
+            # Current gameweek is the one before the next deadline
+            return max(1, event['id'] - 1)
+    
+    # If no future deadline found, return last gameweek
+    return data['events']['data'][-1]['id']
 
 def get_manager_code(manager_name, managers_config_path):
     """Get manager code from manager name"""
@@ -81,6 +105,12 @@ def process_fixtures(fpl_api, fixtures, group_name, current_gameweek):
     
     return results
 
+def get_next_fixtures(fixtures, current_gameweek):
+    """Get fixtures for the next gameweek"""
+    next_gw = current_gameweek + 1
+    next_fixtures = [f for f in fixtures if f['gameweek'] == next_gw]
+    return next_fixtures
+
 def calculate_league_table(results, teams):
     """Calculate league table from match results"""
     table = {}
@@ -136,22 +166,12 @@ def calculate_league_table(results, teams):
     
     return sorted_table
 
-def main():
-    # Load configuration
-    config = Config()
-    cup_config = load_cup_config()
-    
-    # Initialize FPL API
-    fpl_api = FplAPI(config.fpl_domain)
-    
-    # Current gameweek to process up to
-    current_gameweek = 22  # Change this to process more gameweeks
-    
+def show_group_tables(fpl_api, cup_config, current_gameweek):
+    """Show current league tables for all groups"""
     print("=" * 100)
-    print(f"FPL DRAFT CUP - Match Results & League Tables (up to GW{current_gameweek})")
+    print(f"FPL DRAFT CUP - LEAGUE TABLES (Current: GW{current_gameweek})")
     print("=" * 100)
     
-    # Process each group
     for group_name in ['A', 'B']:
         group_key = f'group_{group_name}'
         fixtures = cup_config['fixtures'][group_key]
@@ -161,22 +181,10 @@ def main():
         print(f"GROUP {group_name}")
         print(f"{'=' * 100}")
         
-        # Process fixtures
         results = process_fixtures(fpl_api, fixtures, group_name, current_gameweek)
-        
-        # Print match results
-        print(f"\nMATCH RESULTS:")
-        print(f"{'GW':<5} {'Home Team':<20} {'Score':<10} {'Away Team':<20} {'Result':<8}")
-        print("-" * 70)
-        
-        for match in results:
-            print(f"GW{match['gameweek']:<3} {match['home']:<20} {match['home_points']:<3}-{match['away_points']:<6} {match['away']:<20} {match['result']:<8}")
-        
-        # Calculate and print league table
         table = calculate_league_table(results, teams)
         
-        print(f"\nLEAGUE TABLE:")
-        print(f"{'Pos':<5} {'Team':<20} {'P':<4} {'W':<4} {'D':<4} {'L':<4} {'PF':<6} {'PA':<6} {'Diff':<7} {'Pts':<5}")
+        print(f"\n{'Pos':<5} {'Team':<20} {'P':<4} {'W':<4} {'D':<4} {'L':<4} {'PF':<6} {'PA':<6} {'Diff':<7} {'Pts':<5}")
         print("-" * 75)
         
         for pos, (team, stats) in enumerate(table, 1):
@@ -184,6 +192,98 @@ def main():
                   f"{stats['points_for']:<6} {stats['points_against']:<6} {stats['points_diff']:<+7} {stats['match_points']:<5}")
     
     print("\n" + "=" * 100)
+
+def show_next_fixtures(cup_config, current_gameweek):
+    """Show next week's fixtures"""
+    next_gw = current_gameweek + 1
+    
+    print("=" * 100)
+    print(f"FPL DRAFT CUP - NEXT FIXTURES (GW{next_gw})")
+    print("=" * 100)
+    
+    for group_name in ['A', 'B']:
+        group_key = f'group_{group_name}'
+        fixtures = cup_config['fixtures'][group_key]
+        
+        next_fixtures = get_next_fixtures(fixtures, current_gameweek)
+        
+        if next_fixtures:
+            print(f"\n{'=' * 100}")
+            print(f"GROUP {group_name}")
+            print(f"{'=' * 100}")
+            print(f"\n{'Home Team':<25} vs {'Away Team':<25}")
+            print("-" * 55)
+            
+            for fixture in next_fixtures:
+                print(f"{fixture['home']:<25} vs {fixture['away']:<25}")
+        
+    print("\n" + "=" * 100)
+
+def show_results(fpl_api, cup_config, current_gameweek):
+    """Show latest round and aggregate results"""
+    print("=" * 100)
+    print(f"FPL DRAFT CUP - MATCH RESULTS (up to GW{current_gameweek})")
+    print("=" * 100)
+    
+    for group_name in ['A', 'B']:
+        group_key = f'group_{group_name}'
+        fixtures = cup_config['fixtures'][group_key]
+        teams = cup_config['groups'][group_name]['teams']
+        
+        print(f"\n{'=' * 100}")
+        print(f"GROUP {group_name}")
+        print(f"{'=' * 100}")
+        
+        results = process_fixtures(fpl_api, fixtures, group_name, current_gameweek)
+        
+        # Show latest round results
+        latest_round = [r for r in results if r['gameweek'] == current_gameweek]
+        
+        if latest_round:
+            print(f"\nLATEST ROUND (GW{current_gameweek}):")
+            print(f"{'Home Team':<20} {'Score':<10} {'Away Team':<20} {'Result':<8}")
+            print("-" * 60)
+            
+            for match in latest_round:
+                print(f"{match['home']:<20} {match['home_points']:<3}-{match['away_points']:<6} {match['away']:<20} {match['result']:<8}")
+        
+        # Show aggregate results by gameweek
+        print(f"\nALL RESULTS:")
+        print(f"{'GW':<5} {'Home Team':<20} {'Score':<10} {'Away Team':<20} {'Result':<8}")
+        print("-" * 70)
+        
+        for match in results:
+            print(f"GW{match['gameweek']:<3} {match['home']:<20} {match['home_points']:<3}-{match['away_points']:<6} {match['away']:<20} {match['result']:<8}")
+    
+    print("\n" + "=" * 100)
+
+def main():
+    # Parse command line argument
+    request_type = sys.argv[1] if len(sys.argv) > 1 else 'group'
+    
+    # Load configuration
+    config = Config()
+    cup_config = load_cup_config()
+    
+    # Initialize FPL API
+    fpl_api = FplAPI(config.fpl_domain)
+    
+    # Get current gameweek from gameweeks.json
+    current_gameweek = get_current_gameweek()
+    
+    # Handle different request types
+    if request_type == 'group':
+        show_group_tables(fpl_api, cup_config, current_gameweek)
+    elif request_type == 'fixtures':
+        show_next_fixtures(cup_config, current_gameweek)
+    elif request_type == 'results':
+        show_results(fpl_api, cup_config, current_gameweek)
+    else:
+        print(f"Unknown request type: {request_type}")
+        print("Usage: python test_main.py [group|fixtures|results]")
+        print("  group    - Show current league tables")
+        print("  fixtures - Show next week's fixtures")
+        print("  results  - Show latest round and all previous results")
 
 if __name__ == "__main__":
     main()
