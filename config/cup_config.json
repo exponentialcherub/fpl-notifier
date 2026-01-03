@@ -20,7 +20,7 @@
   },
   "fixtures": {
     "group_A": [
-      {"gameweek": 22, "home": "SteveMunck", "away": "JordanStandring"},
+      {"gameweek": 18, "home": "SteveMunck", "away": "JordanStandring"},
       {"gameweek": 22, "home": "LiamGibbs", "away": "JoeShepperd"},
       {"gameweek": 23, "home": "SteveMunck", "away": "LiamGibbs"},
       {"gameweek": 23, "home": "JordanStandring", "away": "RoryMcTamney"},
