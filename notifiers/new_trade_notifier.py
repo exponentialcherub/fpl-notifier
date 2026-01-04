@@ -14,7 +14,6 @@ class NewTradeNotifier(object):
 
     def check_and_notify_new_trade(self):
         transactions = self.fpl_api.get_transactions(self.league_id)
-
         # Sort by most recent first
         sorted_tx = sorted(transactions, key=lambda x: x['response_time'], reverse=True)
 
