@@ -57,7 +57,7 @@ def _run():
 
 def main():
     logging.basicConfig(
-        filename='fpl_poller.log',
+        handlers=[logging.FileHandler(filename="fpl_poller.log", encoding='utf-8', mode='a+')],
         level=logging.INFO,
         format='%(asctime)s %(levelname)-8s %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S',
