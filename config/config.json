@@ -4,6 +4,11 @@
   "last_trade_file_path": "last_trade_id.json",
   "gameweeks_path": "gameweeks.json",
   "notify_within_seconds": 43200,
-  "queue_publish_url": "http://localhost:5001/publish/notify",
-  "fpl_domain": "https://draft.premierleague.com/api"
+  "fpl_domain": "https://draft.premierleague.com/api",
+  "queue": {
+    "domain": "http://localhost:5001",
+    "consume_subject": "fpl",
+    "notify_subject": "notify",
+    "poll_interval": 100
+  }
 }
