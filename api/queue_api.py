@@ -15,7 +15,7 @@ class QueueApi(object):
 
     def consume(self):
         response = requests.get(self.consume_url)
-        response_json = requests.get(self.consume_url).json()
+        response_json = response.json()
 
         if "status" in response_json and response_json["status"] == "empty":
             return None
