@@ -14,15 +14,15 @@ class NewTradeNotifier(object):
 
     def check_and_notify_new_trade(self):
         transactions = self.fpl_api.get_transactions(self.league_id)
-        teams = self.fpl_api.get_teams(self.league_id)
-        players = self.fpl_api.get_players()
+
         # Sort by most recent first
         sorted_tx = sorted(transactions, key=lambda x: x['response_time'], reverse=True)
 
         for tx in sorted_tx:
             trade_id = tx["id"]
             if trade_id != self.state.last_trade_id:
-
+                teams = self.fpl_api.get_teams(self.league_id)
+                players = self.fpl_api.get_players()
 
                 # Build trade message
                 offered_team = teams[tx['offered_entry']]
