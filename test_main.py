@@ -195,7 +195,32 @@ def show_group_tables(fpl_api, cup_config, current_gameweek):
 
 def show_next_fixtures(cup_config, current_gameweek):
     """Show next week's fixtures"""
+    # Find the next gameweek that has fixtures
     next_gw = current_gameweek + 1
+    max_gw = 38  # Maximum gameweek number
+    
+    # Check all groups to find the next gameweek with fixtures
+    while next_gw <= max_gw:
+        has_fixtures = False
+        for group_name in ['A', 'B']:
+            group_key = f'group_{group_name}'
+            fixtures = cup_config['fixtures'][group_key]
+            next_fixtures = [f for f in fixtures if f['gameweek'] == next_gw]
+            if next_fixtures:
+                has_fixtures = True
+                break
+        
+        if has_fixtures:
+            break
+        next_gw += 1
+    
+    if next_gw > max_gw:
+        print("=" * 100)
+        print("FPL DRAFT CUP - NO UPCOMING FIXTURES")
+        print("=" * 100)
+        print("\nAll cup fixtures have been completed!")
+        print("\n" + "=" * 100)
+        return
     
     print("=" * 100)
     print(f"FPL DRAFT CUP - NEXT FIXTURES (GW{next_gw})")
@@ -205,7 +230,7 @@ def show_next_fixtures(cup_config, current_gameweek):
         group_key = f'group_{group_name}'
         fixtures = cup_config['fixtures'][group_key]
         
-        next_fixtures = get_next_fixtures(fixtures, current_gameweek)
+        next_fixtures = [f for f in fixtures if f['gameweek'] == next_gw]
         
         if next_fixtures:
             print(f"\n{'=' * 100}")
@@ -257,9 +282,33 @@ def show_results(fpl_api, cup_config, current_gameweek):
     
     print("\n" + "=" * 100)
 
+def show_full_fixtures(cup_config, current_gameweek):
+    """Show complete fixture list for the cup"""
+    print("=" * 100)
+    print(f"FPL DRAFT CUP - FULL FIXTURE LIST (Current: GW{current_gameweek})")
+    print("=" * 100)
+    
+    for group_name in ['A', 'B']:
+        group_key = f'group_{group_name}'
+        fixtures = cup_config['fixtures'][group_key]
+        
+        print(f"\n{'=' * 100}")
+        print(f"GROUP {group_name}")
+        print(f"{'=' * 100}")
+        
+        print(f"\n{'GW':<5} {'Home Team':<25} vs {'Away Team':<25} {'Status':<15}")
+        print("-" * 75)
+        
+        for fixture in fixtures:
+            gw = fixture['gameweek']
+            status = 'Completed' if gw <= current_gameweek else 'Upcoming'
+            print(f"GW{gw:<3} {fixture['home']:<25} vs {fixture['away']:<25} {status:<15}")
+    
+    print("\n" + "=" * 100)
+
 def main():
     # Parse command line argument
-    request_type = sys.argv[1] if len(sys.argv) > 1 else 'group'
+    request_type = 'all-fixtures'#sys.argv[1] if len(sys.argv) > 1 else 'group'
     
     # Load configuration
     config = Config()
@@ -278,12 +327,15 @@ def main():
         show_next_fixtures(cup_config, current_gameweek)
     elif request_type == 'results':
         show_results(fpl_api, cup_config, current_gameweek)
+    elif request_type == 'all-fixtures':
+        show_full_fixtures(cup_config, current_gameweek)
     else:
         print(f"Unknown request type: {request_type}")
-        print("Usage: python test_main.py [group|fixtures|results]")
-        print("  group    - Show current league tables")
-        print("  fixtures - Show next week's fixtures")
-        print("  results  - Show latest round and all previous results")
+        print("Usage: python test_main.py [group|fixtures|results|all-fixtures]")
+        print("  group        - Show current league tables")
+        print("  fixtures     - Show next week's fixtures")
+        print("  results      - Show latest round and all previous results")
+        print("  all-fixtures - Show complete fixture list")
 
 if __name__ == "__main__":
     main()

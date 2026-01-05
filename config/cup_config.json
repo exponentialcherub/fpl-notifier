@@ -20,7 +20,7 @@
   },
   "fixtures": {
     "group_A": [
-      {"gameweek": 18, "home": "SteveMunck", "away": "JordanStandring"},
+      {"gameweek": 22, "home": "SteveMunck", "away": "JordanStandring"},
       {"gameweek": 22, "home": "LiamGibbs", "away": "JoeShepperd"},
       {"gameweek": 23, "home": "SteveMunck", "away": "LiamGibbs"},
       {"gameweek": 23, "home": "JordanStandring", "away": "RoryMcTamney"},
@@ -59,9 +59,9 @@
       {"gameweek": 29, "home": "SamAnnetts", "away": "RhysMorecombe"},
       {"gameweek": 29, "home": "JamesBest", "away": "AndyMcrae"},
       {"gameweek": 30, "home": "JamesBest", "away": "RhysMorecombe"},
-      {"gameweek": 30, "home": "AndyMcrae", "away": "AliMcrae"},
-      {"gameweek": 31, "home": "SamAnnetts", "away": "AliMcrae"},
-      {"gameweek": 31, "home": "JamesBest", "away": "SamAnnetts"}
+      {"gameweek": 30, "home": "SamAnnetts", "away": "AliMcrae"},
+      {"gameweek": 31, "home": "JamesBest", "away": "SamAnnetts"},
+      {"gameweek": 31, "home": "AndyMcrae", "away": "AliMcrae"}
     ]
   },
   "rules": {
