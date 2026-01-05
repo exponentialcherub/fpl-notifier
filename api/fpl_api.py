@@ -26,7 +26,7 @@ class FplAPI(object):
 
     def get_teams(self, league_id):
         league_details = self._get_details(league_id)
-        teams = {team['entry_id']: team['entry_name'] for team in league_details['league_entries']}
+        teams = {team['id']: team['entry_name'] for team in league_details['league_entries']}
         return teams
 
     def get_standings(self, league_id):
