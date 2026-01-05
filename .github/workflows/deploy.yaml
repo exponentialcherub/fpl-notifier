@@ -8,6 +8,6 @@ jobs:
     uses: exponentialcherub/deploy-pi/.github/workflows/deploy-pi.yml@v1.0.5
     with:
       app-name: "fpl-notifier"
-      startup-cmd: "python poller.py"
+      startup-cmd: "'source venv/bin/activate; python poller.py'"
       branch: "main"
     secrets: inherit
