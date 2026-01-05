@@ -1,5 +1,5 @@
 from api.fpl_api import FplAPI
-from api.notify_api import NotifyApi
+from api.queue_api import QueueApi
 from config.config import Config
 from notifiers.gameweek_notifier import GameweekNotifier
 from notifiers.new_trade_notifier import NewTradeNotifier
@@ -12,12 +12,12 @@ def _run():
     state = State(config.last_trade_file_path, config.notifier_state_path)
 
     fpl_api = FplAPI(config.fpl_domain)
-    notify_api = NotifyApi(config.queue_publish_url)
+    queue_api = QueueApi(config.queue)
 
     gameweeks = fpl_api.get_gameweek_details()
 
-    gameweek_notifier = GameweekNotifier(state, gameweeks, config.notify_within_seconds, notify_api)
-    new_trade_notifier = NewTradeNotifier(fpl_api, notify_api, config.league_id, state)
+    gameweek_notifier = GameweekNotifier(state, gameweeks, config.notify_within_seconds, queue_api)
+    new_trade_notifier = NewTradeNotifier(fpl_api, queue_api, config.league_id, state)
 
     gameweek_notifier.check_and_notify_waiver()
     new_trade_notifier.check_and_notify_new_trade()

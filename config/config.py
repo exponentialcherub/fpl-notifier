@@ -14,6 +14,19 @@ class Config(object):
         self.notifier_state_path = data['notifier_state_path']
         self.gameweeks_path = data['gameweeks_path']
         self.notify_within_seconds = data['notify_within_seconds']
-        self.queue_publish_url = data['queue_publish_url']
         self.last_trade_file_path = data['last_trade_file_path']
         self.fpl_domain = data['fpl_domain']
+        queue = data.get('queue', {})
+        self.queue = QueueConfig(
+            domain=queue.get('domain', ''),
+            consume_subject=queue.get('consume_subject', ''),
+            notify_subject=queue.get('notify_subject', ''),
+            poll_interval=queue.get('poll_interval', 100)
+        )
+
+class QueueConfig:
+    def __init__(self, domain: str, consume_subject: str, notify_subject: str, poll_interval: int):
+        self.domain = domain
+        self.consume_subject = consume_subject
+        self.notify_subject = notify_subject
+        self.poll_interval = poll_interval
