@@ -1,6 +1,9 @@
-import requests
+import requests_cache
 import os
 import json
+
+from requests_cache import DO_NOT_CACHE
+
 
 class FplAPI(object):
     def __init__(self, draft_domain):
@@ -10,19 +13,35 @@ class FplAPI(object):
             "..", "resources", "gameweeks.json"
         )
 
+        urls_expire_after = {
+            f'{draft_domain}/league/*/details': 60,
+            f'{draft_domain}/bootstrap-static': 60*60*60*12,
+            '*': DO_NOT_CACHE,
+        }
+
+        self.session = requests_cache.CachedSession('fpl_api', urls_expire_after=urls_expire_after)
+
+    def _get_details(self, league_id):
+        return self.session.get(f"{self.draft_domain}/league/{league_id}/details").json()
+
     def get_teams(self, league_id):
-        league_details = requests.get(f"{self.draft_domain}/league/{league_id}/details").json()
-        teams = {team['entry_id']: team['entry_name'] for team in league_details['league_entries']}
+        league_details = self._get_details(league_id)
+        teams = {team['id']: team['entry_name'] for team in league_details['league_entries']}
         return teams
 
+    def get_standings(self, league_id):
+        league_details = self._get_details(league_id)
+        standings = league_details["standings"]
+        return standings
+
     def get_players(self):
-        bootstrap = requests.get(f"{self.draft_domain}/bootstrap-static").json()
+        bootstrap = self.session.get(f"{self.draft_domain}/bootstrap-static").json()
         players = {p['id']: p['web_name'] for p in bootstrap['elements']}
         return players
 
     def get_transactions(self, league_id):
         url = f"{self.draft_domain}/draft/league/{league_id}/trades"
-        r = requests.get(url)
+        r = self.session.get(url)
         r.raise_for_status()
         return r.json()['trades']
 
