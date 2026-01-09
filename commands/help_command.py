@@ -1,7 +1,7 @@
 from commands.command import Command
 
 help_message = (
-    "Unknown command. Usage:\n"
+    "Usage:\n"
     "!group        - Show current league tables\n"
     "!fixtures     - Show next week's fixtures\n"
     "!results      - Show latest round and all previous results\n"
