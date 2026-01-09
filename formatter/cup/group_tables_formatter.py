@@ -1,4 +1,4 @@
-# formatter/group_table_formatter.py
+# formatter/group_tables_formatter.py
 from config.manager_config import ManagerConfig
 
 

@@ -3,10 +3,17 @@ import time
 
 from api.fpl_api import FplAPI
 from api.queue_api import QueueApi
+from commands.HelpCommand import HelpCommand
 from commands.command import Command
+from commands.cup.full_fixtures_command import FullFixturesCommand
+from commands.cup.group_tables_command import GroupTablesCommand
+from commands.cup.next_fixtures_command import NextFixturesCommand
+from commands.cup.results_command import ResultsCommand
 from commands.standings_command import StandingsCommand
 from commands.standrings_command import StandringsCommand
 from config.config import Config
+from config.cup_config import CupConfig
+from config.manager_config import ManagerConfig
 
 
 def _poll_queue(queue_api: QueueApi):
@@ -29,6 +36,8 @@ def _run():
     logger = logging.getLogger(__name__)
 
     config = Config()
+    manager_config = ManagerConfig()
+    cup_config = CupConfig()
 
     league_id = config.league_id
 
@@ -38,6 +47,11 @@ def _run():
     commands: dict[str, Command] = {
         "!standings": StandingsCommand(fpl_api, league_id),
         "!standrings": StandringsCommand(fpl_api, league_id),
+        "!results": ResultsCommand(fpl_api, league_id, manager_config, cup_config),
+        "!group": GroupTablesCommand(fpl_api, league_id, manager_config, cup_config),
+        "!full-fixtures": FullFixturesCommand(fpl_api, league_id, manager_config, cup_config),
+        "!fixtures": NextFixturesCommand(fpl_api, league_id, manager_config, cup_config),
+        "!help": HelpCommand(),
     }
 
     while True:
@@ -49,11 +63,12 @@ def _run():
             logger.info("Processing: " + action)
             command = commands[action]
             message = command.run()
-            logger.info("Sending message to queue: " + message)
 
             queue_api.publish(reply_to, message)
         elif action:
             logger.info("Unsupported: " + action)
+            message = "Unsupported command.\n" + HelpCommand().run()
+            queue_api.publish(reply_to, message)
 
 def main():
     logging.basicConfig(
