@@ -3,7 +3,7 @@ import time
 
 from api.fpl_api import FplAPI
 from api.queue_api import QueueApi
-from commands.HelpCommand import HelpCommand
+from commands.help_command import HelpCommand
 from commands.command import Command
 from commands.cup.full_fixtures_command import FullFixturesCommand
 from commands.cup.group_tables_command import GroupTablesCommand
