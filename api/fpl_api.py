@@ -1,9 +1,22 @@
+from datetime import timezone, datetime
+from typing import List
+
 import requests_cache
 import os
 import json
 
 from requests_cache import DO_NOT_CACHE
 
+class FplTeam(object):
+    def __init__(self, team):
+        self.id = team['id']
+        self.entry_id = team['entry_id']
+        self.name = team['entry_name']
+
+class FplTeams(object):
+    def __init__(self, teams: List[FplTeam]):
+        self.by_id = {t.id: t for t in teams}
+        self.by_entry_id = {t.entry_id: t for t in teams}
 
 class FplAPI(object):
     def __init__(self, draft_domain):
@@ -16,18 +29,20 @@ class FplAPI(object):
         urls_expire_after = {
             f'{draft_domain}/league/*/details': 60,
             f'{draft_domain}/bootstrap-static': 60*60*60*12,
+            f'{draft_domain}/entry/*/history': 60,
             '*': DO_NOT_CACHE,
         }
 
         self.session = requests_cache.CachedSession('fpl_api', urls_expire_after=urls_expire_after)
 
     def _get_details(self, league_id):
-        return self.session.get(f"{self.draft_domain}/league/{league_id}/details").json()
+        r = self.session.get(f"{self.draft_domain}/league/{league_id}/details")
+        r.raise_for_status()
+        return r.json()
 
     def get_teams(self, league_id):
         league_details = self._get_details(league_id)
-        teams = {team['id']: team['entry_name'] for team in league_details['league_entries']}
-        return teams
+        return FplTeams([FplTeam(t) for t in league_details['league_entries']])
 
     def get_standings(self, league_id):
         league_details = self._get_details(league_id)
@@ -52,80 +67,44 @@ class FplAPI(object):
                 return json.load(f).get("events")["data"]
         return None
 
-    def get_team_gameweek_points(self, team_id, gameweek):
-        """Get points for a specific team in a specific gameweek"""
-        url = f"{self.draft_domain}/entry/{team_id}/event/{gameweek}/picks"
-        r = requests.get(url)
+    def get_current_gameweek(self):
+        now = datetime.now(timezone.utc)
+
+        gameweek_details = self.get_gameweek_details()
+
+        # Find current gameweek
+        for event in gameweek_details:
+            deadline = datetime.fromisoformat(event['deadline_time'])
+            if now < deadline:
+                # Current gameweek is the one before the next deadline
+                return max(1, event['id'] - 1)
+
+        # If no future deadline found, return last gameweek
+        return gameweek_details[-1]['id']
+
+    def get_gameweek_scores(self, entry_id, gameweek):
+        url = f"{self.draft_domain}/entry/{entry_id}/history"
+        r = self.session.get(url)
         r.raise_for_status()
-        return r.json()
+        data = r.json()
+
+        # Find the specific gameweek in the history
+        gameweek_data = next(
+            (gw for gw in data['history'] if gw['event'] == gameweek),
+            None
+        )
+
+        return gameweek_data.get('points', 0)
 
     def get_league_gameweek_scores(self, league_id, gameweek):
-        """Get all managers' points for a specific gameweek using manager IDs"""
-        # Load managers config
-        managers_config_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "..", "config", "managers_config.json"
-        )
-        
-        with open(managers_config_path, 'r') as f:
-            managers_data = json.load(f)
+        """Get all points for a specific gameweek for given managers"""
+
+        teams = self.get_teams(league_id)
         
         scores = {}
-        for manager in managers_data['managers']:
-            entry_id = manager['code']
-            manager_name = manager['name']
-            
-            try:
-                url = f"{self.draft_domain}/entry/{entry_id}/history"
-                r = requests.get(url)
-                r.raise_for_status()
-                data = r.json()
-                
-                # Find the specific gameweek in the history
-                gameweek_data = next(
-                    (gw for gw in data['history'] if gw['event'] == gameweek),
-                    None
-                )
-                
-                if gameweek_data:
-                    scores[entry_id] = {
-                        'manager_name': manager_name,
-                        'abbreviation': manager['abbreviation'],
-                        'points': gameweek_data['points'],
-                        'total_points': gameweek_data['total_points'],
-                        'points_on_bench': gameweek_data.get('points_on_bench', 0)
-                    }
-                else:
-                    scores[entry_id] = {
-                        'manager_name': manager_name,
-                        'abbreviation': manager['abbreviation'],
-                        'points': 0,
-                        'total_points': 0,
-                        'error': f'No data for gameweek {gameweek}'
-                    }
-                    
-            except requests.exceptions.HTTPError as e:
-                if e.response.status_code == 404:
-                    scores[entry_id] = {
-                        'manager_name': manager_name,
-                        'abbreviation': manager['abbreviation'],
-                        'points': 0,
-                        'total_points': 0,
-                        'error': f'No data available for gameweek {gameweek}'
-                    }
-                else:
-                    scores[entry_id] = {
-                        'manager_name': manager_name,
-                        'abbreviation': manager['abbreviation'],
-                        'points': 0,
-                        'error': str(e)
-                    }
-            except Exception as e:
-                scores[entry_id] = {
-                    'manager_name': manager_name,
-                    'abbreviation': manager['abbreviation'],
-                    'points': 0,
-                    'error': str(e)
-                }
-        
+        for entry_id in teams.by_entry_id:
+            team = teams.by_entry_id[entry_id]
+            team_scores = self.get_gameweek_scores(entry_id, gameweek)
+            scores[team.id] = team_scores
+
         return scores
