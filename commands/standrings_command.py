@@ -1,4 +1,4 @@
-from commands.FplCommand import FplCommand
+from commands.fpl_command import FplCommand
 from commands.command import Command
 from formatter.standings_formatter import format_standings
 

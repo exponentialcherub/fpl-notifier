@@ -1,5 +1,5 @@
 from api.fpl_api import FplAPI
-from commands.FplCommand import FplCommand
+from commands.fpl_command import FplCommand
 from config.cup_config import CupConfig
 from config.manager_config import ManagerConfig
 
