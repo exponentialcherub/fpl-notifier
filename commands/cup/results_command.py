@@ -23,4 +23,4 @@ class ResultsCommand(CupCommand):
             current_gameweek
         )
 
-        return format_results(results_a, results_b)
+        return format_results(results_a, results_b, current_gameweek)
