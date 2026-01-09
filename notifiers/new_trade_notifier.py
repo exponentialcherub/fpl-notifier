@@ -25,8 +25,8 @@ class NewTradeNotifier(object):
                 players = self.fpl_api.get_players()
 
                 # Build trade message
-                offered_team = teams[tx['offered_entry']]
-                received_team = teams[tx['received_entry']]
+                offered_team = teams.by_entry_id[tx['offered_entry']].name
+                received_team = teams.by_entry_id[tx['received_entry']].name
                 ins = "\n".join([players[trade_item['element_in']] for trade_item in tx['tradeitem_set']])
                 outs = "\n".join([players[trade_item['element_out']] for trade_item in tx['tradeitem_set']])
                 message = f"🚨 New Trade Alert 🚨\n*{offered_team}*\n{ins}\n ↔️ \n*{received_team}*\n{outs}"

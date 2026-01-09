@@ -1,3 +1,5 @@
+from api.fpl_api import FplTeams
+
 TEAM_OWNERS = {
 	51777: "Andy",
 	51792: "Ali",
@@ -11,11 +13,11 @@ TEAM_OWNERS = {
 	51757: "Liam"
 }
 
-def format_standings(standings, teams):
+def format_standings(standings, teams: FplTeams):
 	message_lines = ["📊 *Current League Standings* 📊\n"]
 	for row in standings:
-		entry_id = row["league_entry"]
-		team_name = teams.get(entry_id, f"Team {entry_id}")
+		id = row["league_entry"]
+		team_name = teams.by_id[id].name
 		rank = row["rank"]
 		pts = row["total"]
 		# played = row["matches_played"]
@@ -29,6 +31,6 @@ def format_standings(standings, teams):
 		else:
 			medal = "⚽"
 
-		message_lines.append(f"{medal} {rank}. *{TEAM_OWNERS[entry_id]}* {team_name} — {pts} pts")
+		message_lines.append(f"{medal} {rank}. *{TEAM_OWNERS[id]}* {team_name} — {pts} pts")
 
 	return "\n".join(message_lines)

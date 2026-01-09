@@ -1,0 +1,121 @@
+{
+  "competition_name": "FPL Draft Cup",
+  "format": "group_stage",
+  "scoring": "head_to_head_points",
+  "groups": {
+    "A": {
+      "teams": ["SteveMunck", "JordanStandring", "LiamGibbs", "JoeShepperd", "RoryMcTamney"],
+      "matches_per_opponent": 2
+    },
+    "B": {
+      "teams": ["RhysMorecombe", "AliMcrae", "AndyMcrae", "SamAnnetts", "JamesBest"],
+      "matches_per_opponent": 2
+    }
+  },
+  "schedule": {
+    "group_stage": {
+      "gameweeks": [22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+      "description": "Both Group A and Group B play across GW22-31, each team plays every opponent twice"
+    }
+  },
+  "fixtures": {
+    "group_A": [
+      {"gameweek": 22, "home": "SteveMunck", "away": "JordanStandring"},
+      {"gameweek": 22, "home": "LiamGibbs", "away": "JoeShepperd"},
+      {"gameweek": 23, "home": "SteveMunck", "away": "LiamGibbs"},
+      {"gameweek": 23, "home": "JordanStandring", "away": "RoryMcTamney"},
+      {"gameweek": 24, "home": "SteveMunck", "away": "JoeShepperd"},
+      {"gameweek": 24, "home": "LiamGibbs", "away": "RoryMcTamney"},
+      {"gameweek": 25, "home": "SteveMunck", "away": "RoryMcTamney"},
+      {"gameweek": 25, "home": "JordanStandring", "away": "JoeShepperd"},
+      {"gameweek": 26, "home": "JordanStandring", "away": "LiamGibbs"},
+      {"gameweek": 26, "home": "JoeShepperd", "away": "RoryMcTamney"},
+      {"gameweek": 27, "home": "JordanStandring", "away": "SteveMunck"},
+      {"gameweek": 27, "home": "JoeShepperd", "away": "LiamGibbs"},
+      {"gameweek": 28, "home": "LiamGibbs", "away": "SteveMunck"},
+      {"gameweek": 28, "home": "RoryMcTamney", "away": "JordanStandring"},
+      {"gameweek": 29, "home": "JoeShepperd", "away": "SteveMunck"},
+      {"gameweek": 29, "home": "RoryMcTamney", "away": "LiamGibbs"},
+      {"gameweek": 30, "home": "RoryMcTamney", "away": "SteveMunck"},
+      {"gameweek": 30, "home": "JoeShepperd", "away": "JordanStandring"},
+      {"gameweek": 31, "home": "LiamGibbs", "away": "JordanStandring"},
+      {"gameweek": 31, "home": "RoryMcTamney", "away": "JoeShepperd"}
+    ],
+    "group_B": [
+      {"gameweek": 22, "home": "RhysMorecombe", "away": "AliMcrae"},
+      {"gameweek": 22, "home": "AndyMcrae", "away": "SamAnnetts"},
+      {"gameweek": 23, "home": "RhysMorecombe", "away": "AndyMcrae"},
+      {"gameweek": 23, "home": "AliMcrae", "away": "JamesBest"},
+      {"gameweek": 24, "home": "RhysMorecombe", "away": "SamAnnetts"},
+      {"gameweek": 24, "home": "AndyMcrae", "away": "JamesBest"},
+      {"gameweek": 25, "home": "RhysMorecombe", "away": "JamesBest"},
+      {"gameweek": 25, "home": "AliMcrae", "away": "SamAnnetts"},
+      {"gameweek": 26, "home": "AliMcrae", "away": "AndyMcrae"},
+      {"gameweek": 26, "home": "SamAnnetts", "away": "JamesBest"},
+      {"gameweek": 27, "home": "AliMcrae", "away": "RhysMorecombe"},
+      {"gameweek": 27, "home": "SamAnnetts", "away": "AndyMcrae"},
+      {"gameweek": 28, "home": "AndyMcrae", "away": "RhysMorecombe"},
+      {"gameweek": 28, "home": "JamesBest", "away": "AliMcrae"},
+      {"gameweek": 29, "home": "SamAnnetts", "away": "RhysMorecombe"},
+      {"gameweek": 29, "home": "JamesBest", "away": "AndyMcrae"},
+      {"gameweek": 30, "home": "JamesBest", "away": "RhysMorecombe"},
+      {"gameweek": 30, "home": "SamAnnetts", "away": "AliMcrae"},
+      {"gameweek": 31, "home": "JamesBest", "away": "SamAnnetts"},
+      {"gameweek": 31, "home": "AndyMcrae", "away": "AliMcrae"}
+    ]
+  },
+  "rules": {
+    "match_winner": "highest_gameweek_points",
+    "points_for_win": 3,
+    "points_for_draw": 1,
+    "points_for_loss": 0,
+    "tiebreakers": [
+      "total_points_scored",
+      "head_to_head_record",
+      "points_difference"
+    ]
+  },
+  "advancement": {
+    "group_A_quAliMcraefiers": 4,
+    "group_B_quAliMcraefiers": 4,
+    "total_quAliMcraefiers": 8,
+    "description": "Top 4 from each group (8 teams total) advance to knockout rounds",
+    "seeding": "by_group_position"
+  },
+  "knockout_stage": {
+    "quarter_finals": {
+      "format": "two_legged",
+      "gameweeks": [33, 34],
+      "scoring": "aggregate",
+      "seeding": {
+        "qf1": {"home": "Group_A_1st", "away": "Group_B_4th"},
+        "qf2": {"home": "Group_B_1st", "away": "Group_A_4th"},
+        "qf3": {"home": "Group_A_2nd", "away": "Group_B_3rd"},
+        "qf4": {"home": "Group_B_2nd", "away": "Group_A_3rd"}
+      },
+      "description": "Winner determined by aggregate score over two legs. 1st place teams get home advantage in second leg"
+    },
+    "semi_finals": {
+      "format": "two_legged",
+      "gameweeks": [35, 36],
+      "scoring": "aggregate",
+      "seeding": {
+        "sf1": {"teams": "Winner_QF1 vs Winner_QF4"},
+        "sf2": {"teams": "Winner_QF2 vs Winner_QF3"}
+      },
+      "description": "Winner determined by aggregate score over two legs"
+    },
+    "final": {
+      "format": "single_match",
+      "gameweek": 38,
+      "scoring": "single_gameweek",
+      "description": "Championship decider"
+    }
+  },
+  "relegation_playoff": {
+    "gameweek": 38,
+    "participants": ["Group_A_5th", "Group_B_5th"],
+    "description": "Bottom team from each group play to decide the wooden spoon",
+    "note": "Played gameweek 38"
+  }
+}
