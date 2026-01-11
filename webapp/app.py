@@ -20,7 +20,7 @@ def main():
     )
 
     st.sidebar.markdown("---")
-    st.sidebar.caption("Fantasy Premier League Notifier")
+    st.sidebar.caption("FPL Draft")
 
     # Page routing
     if page == "🏠 Home":
@@ -34,16 +34,9 @@ def main():
 
 
 def show_home_page():
-    st.title("🏠 Welcome to FPL Notifier")
+    st.title("🏠 Welcome to FPL Draft")
     st.markdown("---")
 
-    st.markdown(
-        """
-        ### Your Fantasy Premier League Hub
-        
-        Track your mini-league, cup competitions, and bets all in one place.
-        """
-    )
 
     # Navigation cards
     col1, col2, col3 = st.columns(3)
@@ -52,7 +45,7 @@ def show_home_page():
         st.markdown(
             """
             ### 🏆 League
-            View league standings, manager stats, and gameweek performance.
+            View league standings and stats.
             """
         )
         if st.button("Go to League", key="nav_league", use_container_width=True):
@@ -85,12 +78,6 @@ def show_league_page():
     st.title("🏆 League")
     st.markdown("---")
     st.info("League standings and stats coming soon...")
-
-
-def show_cup_page():
-    st.title("🏅 Cup")
-    st.markdown("---")
-    st.info("Cup fixtures and results coming soon...")
 
 
 def show_bets_page():
