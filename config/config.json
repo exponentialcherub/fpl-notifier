@@ -8,7 +8,7 @@
   "queue": {
     "domain": "http://localhost:5001",
     "consume_subject": "fpl",
-    "notify_subject": "notify",
+    "notify_subject": "notify_fpl",
     "poll_interval": 100
   }
 }
