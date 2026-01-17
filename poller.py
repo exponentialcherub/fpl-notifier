@@ -14,6 +14,7 @@ from commands.standrings_command import StandringsCommand
 from config.config import Config
 from config.cup_config import CupConfig
 from config.manager_config import ManagerConfig
+from service.command_processor import CommandProcessor
 
 
 def _poll_queue(queue_api: QueueApi):
@@ -33,8 +34,6 @@ def _poll_queue(queue_api: QueueApi):
     return action, reply_to
 
 def _run():
-    logger = logging.getLogger(__name__)
-
     config = Config()
     manager_config = ManagerConfig()
     cup_config = CupConfig()
@@ -44,30 +43,14 @@ def _run():
     fpl_api = FplAPI(config.fpl_domain)
     queue_api = QueueApi(config.queue)
 
-    commands: dict[str, Command] = {
-        "!standings": StandingsCommand(fpl_api, league_id),
-        "!standrings": StandringsCommand(fpl_api, league_id),
-        "!results": ResultsCommand(fpl_api, league_id, manager_config, cup_config),
-        "!group": GroupTablesCommand(fpl_api, league_id, manager_config, cup_config),
-        "!full-fixtures": FullFixturesCommand(fpl_api, league_id, manager_config, cup_config),
-        "!fixtures": NextFixturesCommand(fpl_api, league_id, manager_config, cup_config),
-        "!help": HelpCommand(),
-    }
+    processor = CommandProcessor(fpl_api, manager_config, cup_config, league_id)
 
     while True:
         time.sleep(config.queue.poll_interval / 1000)
 
         action, reply_to = _poll_queue(queue_api)
-
-        if action in commands:
-            logger.info("Processing: " + action)
-            command = commands[action]
-            message = command.run()
-
-            queue_api.publish(reply_to, message)
-        elif action:
-            logger.info("Unsupported: " + action)
-            message = "Unsupported command.\n" + HelpCommand().run()
+        message = processor.process(action)
+        if message:
             queue_api.publish(reply_to, message)
 
 def main():

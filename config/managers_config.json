@@ -1,52 +1,52 @@
 {
   "managers": [
     {
-      "name": "JamesBest",
+      "name": "James",
       "code": 51771,
       "abbreviation": "JB"
     },
     {
-      "name": "JoeShepperd",
+      "name": "Joe",
       "code": 51690,
       "abbreviation": "JS1"
     },
     {
-      "name": "LiamGibbs",
+      "name": "Liam",
       "code": 51757,
       "abbreviation": "LG"
     },
     {
-      "name": "SamAnnetts",
+      "name": "Sam",
       "code": 51755,
       "abbreviation": "SA"
     },
     {
-      "name": "RhysMorecombe",
+      "name": "Rhys",
       "code": 51778,
       "abbreviation": "RM"
     },
     {
-      "name": "AliMcrae",
+      "name": "Ali",
       "code": 51792,
       "abbreviation": "AM"
     },
     {
-      "name": "JordanStandring",
+      "name": "Jord",
       "code": 51760,
       "abbreviation": "JS"
     },
     {
-      "name": "SteveMunck",
+      "name": "Steve",
       "code": 51753,
       "abbreviation": "SM"
     },
     {
-      "name": "AndyMcrae",
+      "name": "Andy",
       "code": 51777,
       "abbreviation": "AM1"
     },
     {
-      "name": "RoryMcTamney",
+      "name": "Rory",
       "code": 51773,
       "abbreviation": "RM1"
     }
