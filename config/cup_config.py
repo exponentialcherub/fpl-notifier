@@ -32,9 +32,9 @@ class Rules:
 
 class Advancement:
     def __init__(self, data):
-        self.group_A_qualifiers = data.get("group_A_quAliMcraefiers")
-        self.group_B_qualifiers = data.get("group_B_quAliMcraefiers")
-        self.total_qualifiers = data.get("total_quAliMcraefiers")
+        self.group_A_qualifiers = data.get("group_A_quAlifiers")
+        self.group_B_qualifiers = data.get("group_B_quAlifiers")
+        self.total_qualifiers = data.get("total_quAlifiers")
         self.description = data.get("description")
         self.seeding = data.get("seeding")
 
