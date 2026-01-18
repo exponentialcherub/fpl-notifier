@@ -8,6 +8,7 @@ from commands.command import Command
 from commands.cup.full_fixtures_command import FullFixturesCommand
 from commands.cup.group_tables_command import GroupTablesCommand
 from commands.cup.next_fixtures_command import NextFixturesCommand
+from commands.cup.current_gw_command import CurrentGWCommand
 from commands.cup.results_command import ResultsCommand
 from commands.standings_command import StandingsCommand
 from commands.standrings_command import StandringsCommand
@@ -51,6 +52,7 @@ def _run():
         "!group": GroupTablesCommand(fpl_api, league_id, manager_config, cup_config),
         "!full-fixtures": FullFixturesCommand(fpl_api, league_id, manager_config, cup_config),
         "!fixtures": NextFixturesCommand(fpl_api, league_id, manager_config, cup_config),
+        "!current-cup-fixtures": CurrentGWCommand(fpl_api, league_id, manager_config, cup_config),
         "!help": HelpCommand(),
     }
 
