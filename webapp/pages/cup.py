@@ -30,6 +30,68 @@ st.markdown("---")
 current_gw = fpl_api.get_current_gameweek()
 st.info(f"📅 Current Gameweek: **{current_gw}**")
 
+# Current Gameweek Fixtures with Results
+st.markdown("---")
+st.subheader(f"🎯 Gameweek {current_gw} Fixtures")
+
+# Get all fixtures for current gameweek
+current_gw_fixtures_a = [f for f in cup.fixtures.group_A if f.gameweek == current_gw]
+current_gw_fixtures_b = [f for f in cup.fixtures.group_B if f.gameweek == current_gw]
+
+# Calculate results for all fixtures up to current gameweek
+all_results_a = calculate_results(config.league_id, fpl_api, cup.fixtures.group_A, manager_config, current_gw)
+all_results_b = calculate_results(config.league_id, fpl_api, cup.fixtures.group_B, manager_config, current_gw)
+
+# Filter to only current gameweek results
+current_results_a = [r for r in all_results_a if r['gameweek'] == current_gw]
+current_results_b = [r for r in all_results_b if r['gameweek'] == current_gw]
+
+if current_results_a or current_results_b:
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("**Group A**")
+        if current_results_a:
+            for result in current_results_a:
+                home = result['home']
+                away = result['away']
+                home_pts = result['home_points']
+                away_pts = result['away_points']
+                
+                # Color code the result
+                if result['result'] == 'H':
+                    st.markdown(f"**{home}** `{home_pts}` - `{away_pts}` {away}")
+                elif result['result'] == 'A':
+                    st.markdown(f"{home} `{home_pts}` - `{away_pts}` **{away}**")
+                else:
+                    st.markdown(f"{home} `{home_pts}` - `{away_pts}` {away} *(Draw)*")
+        else:
+            st.info("No fixtures")
+    
+    with col2:
+        st.markdown("**Group B**")
+        if current_results_b:
+            for result in current_results_b:
+                home = result['home']
+                away = result['away']
+                home_pts = result['home_points']
+                away_pts = result['away_points']
+                
+                # Color code the result
+                if result['result'] == 'H':
+                    st.markdown(f"**{home}** `{home_pts}` - `{away_pts}` {away}")
+                elif result['result'] == 'A':
+                    st.markdown(f"{home} `{home_pts}` - `{away_pts}` **{away}**")
+                else:
+                    st.markdown(f"{home} `{home_pts}` - `{away_pts}` {away} *(Draw)*")
+        else:
+            st.info("No fixtures")
+else:
+    st.info("No fixtures for current gameweek")
+
+# Group Tables Section
+st.markdown("---")
+
 # Helper to build league table dataframe
 def build_table_df(sorted_table):
     return pd.DataFrame([
@@ -98,30 +160,74 @@ else:
 st.markdown("---")
 st.subheader("📋 Full Fixture List")
 
+# Create result lookups for quick access
+results_lookup_a = {(r['gameweek'], r['home'], r['away']): r for r in all_results_a}
+results_lookup_b = {(r['gameweek'], r['home'], r['away']): r for r in all_results_b}
+
 tab1, tab2 = st.tabs(["Group A", "Group B"])
 
 with tab1:
-    fixtures_a_df = pd.DataFrame([
-        {
-            "GW": f.gameweek,
+    fixtures_a_data = []
+    for f in cup.fixtures.group_A:
+        if f.gameweek <= current_gw:
+            # Fixture has been played, add scores in separate columns
+            result = results_lookup_a.get((f.gameweek, f.home, f.away))
+            if result:
+                home_score = result['home_points']
+                away_score = result['away_points']
+                status = "✅"
+            else:
+                home_score = "-"
+                away_score = "-"
+                status = "✅"
+        else:
+            home_score = "-"
+            away_score = "-"
+            status = "⏳"
+        
+        row = {
+            "Gameweek": f.gameweek,
             "Home": f.home,
+            "Home Score": home_score,
             "vs": "vs",
+            "Away Score": away_score,
             "Away": f.away,
-            "Status": "✅ Played" if f.gameweek <= current_gw else "⏳ Upcoming"
+            "Status": status
         }
-        for f in cup.fixtures.group_A
-    ])
+        fixtures_a_data.append(row)
+    
+    fixtures_a_df = pd.DataFrame(fixtures_a_data)
     st.dataframe(fixtures_a_df, use_container_width=True, hide_index=True)
 
 with tab2:
-    fixtures_b_df = pd.DataFrame([
-        {
-            "GW": f.gameweek,
+    fixtures_b_data = []
+    for f in cup.fixtures.group_B:
+        if f.gameweek <= current_gw:
+            # Fixture has been played, add scores in separate columns
+            result = results_lookup_b.get((f.gameweek, f.home, f.away))
+            if result:
+                home_score = result['home_points']
+                away_score = result['away_points']
+                status = "✅"
+            else:
+                home_score = "-"
+                away_score = "-"
+                status = "✅"
+        else:
+            home_score = "-"
+            away_score = "-"
+            status = "⏳"
+        
+        row = {
+            "Gameweek": f.gameweek,
             "Home": f.home,
+            "Home Score": home_score,
             "vs": "vs",
+            "Away Score": away_score,
             "Away": f.away,
-            "Status": "✅ Played" if f.gameweek <= current_gw else "⏳ Upcoming"
+            "Status": status
         }
-        for f in cup.fixtures.group_B
-    ])
+        fixtures_b_data.append(row)
+    
+    fixtures_b_df = pd.DataFrame(fixtures_b_data)
     st.dataframe(fixtures_b_df, use_container_width=True, hide_index=True)

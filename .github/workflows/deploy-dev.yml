@@ -1,0 +1,51 @@
+name: Deploy to Dev (AWS App Runner)
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+env:
+  AWS_REGION: eu-west-2  # London, UK
+  SERVICE_NAME: fpl-notifier-dev
+
+jobs:
+  deploy:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    environment: development
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Deploy to App Runner
+        run: |
+          echo "Triggering App Runner deployment for $SERVICE_NAME"
+          aws apprunner start-deployment --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN_DEV }}
+      
+      - name: Wait for deployment
+        run: |
+          echo "Waiting for deployment to complete..."
+          aws apprunner wait service-running --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN_DEV }}
+      
+      - name: Get service URL
+        run: |
+          SERVICE_URL=$(aws apprunner describe-service --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN_DEV }} --query 'Service.ServiceUrl' --output text)
+          echo "Service deployed at: https://$SERVICE_URL"
+          echo "SERVICE_URL=https://$SERVICE_URL" >> $GITHUB_ENV
+      
+      - name: Health check
+        run: |
+          echo "Checking service health..."
+          sleep 30
+          curl -f ${{ env.SERVICE_URL }}/_stcore/health || exit 1
+          echo "✅ Health check passed!"

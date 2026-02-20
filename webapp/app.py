@@ -9,20 +9,26 @@ st.set_page_config(
 
 
 def main():
-    st.sidebar.title("⚽ FPL Notifier")
+    st.sidebar.title("⚽ FC Bathelona FPL Draft")
     st.sidebar.markdown("---")
 
     # Navigation
     page = st.sidebar.radio(
-        "Navigate to:",
+        "Navigation",
         ["🏠 Home", "🏆 League", "🏅 Cup", "🎰 Bets"],
         index=0,
+        label_visibility="collapsed"
     )
 
     st.sidebar.markdown("---")
-    st.sidebar.caption("FPL Draft")
+    st.sidebar.caption("FC Bathelona - FPL Draft")
 
     # Page routing
+    # Check session state for navigation
+    if "page" in st.session_state:
+        page = st.session_state.page
+        del st.session_state.page  # Clear after use
+    
     if page == "🏠 Home":
         show_home_page()
     elif page == "🏆 League":
@@ -34,12 +40,10 @@ def main():
 
 
 def show_home_page():
-    st.title("🏠 Welcome to FPL Draft")
+    st.title("🏠 Welcome to FC Bathelona FPL Draft")
     st.markdown("---")
-
-
-    # Navigation cards
-    col1, col2, col3 = st.columns(3)
+    
+    col1, col2 = st.columns(2)
 
     with col1:
         st.markdown(
@@ -48,9 +52,8 @@ def show_home_page():
             View league standings and stats.
             """
         )
-        if st.button("Go to League", key="nav_league", use_container_width=True):
-            st.session_state["nav"] = "league"
-            st.rerun()
+        if st.button("League", use_container_width=True, key="league_btn"):
+            st.switch_page("pages/league.py")
 
     with col2:
         st.markdown(
@@ -59,20 +62,28 @@ def show_home_page():
             Check cup fixtures, results, and group tables.
             """
         )
-        if st.button("Go to Cup", key="nav_cup", use_container_width=True):
+        if st.button("Cup", use_container_width=True, key="cup_btn"):
             st.switch_page("pages/cup.py")
 
-    with col3:
+    with col1:
         st.markdown(
             """
             ### 🎰 Bets
             Track bets and predictions among managers.
             """
         )
-        if st.button("Go to Bets", key="nav_bets", use_container_width=True):
-            st.session_state["nav"] = "bets"
-            st.rerun()
-
+        if st.button("Bets", use_container_width=True, key="bets_btn"):
+            st.switch_page("pages/bets.py")
+    
+    with col2:
+        st.markdown(
+            """
+            ###  📊 History
+            Historic records of FPL draft league.
+            """
+        )
+        if st.button("History", use_container_width=True, key="history_btn"):
+            st.switch_page("pages/history.py")
 
 def show_league_page():
     st.title("🏆 League")

@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS App Runner - FPL Notifier Dev Environment'
+
+Parameters:
+  GitHubConnectionArn:
+    Type: String
+    Description: ARN of the GitHub connection (create manually in AWS Console first)
+    Default: 'arn:aws:apprunner:eu-west-2:ACCOUNT_ID:connection/CONNECTION_NAME'
+  
+  RepositoryUrl:
+    Type: String
+    Description: GitHub repository URL
+    Default: 'https://github.com/exponentialcherub/fpl-notifier'
+  
+  BranchName:
+    Type: String
+    Description: Branch to deploy
+    Default: 'develop'
+
+Resources:
+  AppRunnerInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: fpl-notifier-dev-instance-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: tasks.apprunner.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+      Tags:
+        - Key: Environment
+          Value: dev
+        - Key: Application
+          Value: fpl-notifier
+
+  AppRunnerService:
+    Type: AWS::AppRunner::Service
+    Properties:
+      ServiceName: fpl-notifier-dev
+      SourceConfiguration:
+        AuthenticationConfiguration:
+          ConnectionArn: !Ref GitHubConnectionArn
+        AutoDeploymentsEnabled: true
+        CodeRepository:
+          RepositoryUrl: !Ref RepositoryUrl
+          SourceCodeVersion:
+            Type: BRANCH
+            Value: !Ref BranchName
+          CodeConfiguration:
+            ConfigurationSource: API
+            CodeConfigurationValues:
+              Runtime: PYTHON_3
+              BuildCommand: pip install -r requirements.txt
+              StartCommand: streamlit run webapp/app.py --server.port 8080 --server.address 0.0.0.0 --server.headless true
+              Port: '8080'
+              RuntimeEnvironmentVariables:
+                - Name: STREAMLIT_SERVER_HEADLESS
+                  Value: 'true'
+                - Name: STREAMLIT_BROWSER_GATHER_USAGE_STATS
+                  Value: 'false'
+                - Name: ENVIRONMENT
+                  Value: 'dev'
+      InstanceConfiguration:
+        Cpu: '1 vCPU'
+        Memory: '2 GB'
+        InstanceRoleArn: !GetAtt AppRunnerInstanceRole.Arn
+      HealthCheckConfiguration:
+        Protocol: HTTP
+        Path: /_stcore/health
+        Interval: 10
+        Timeout: 5
+        HealthyThreshold: 1
+        UnhealthyThreshold: 5
+      Tags:
+        - Key: Environment
+          Value: dev
+        - Key: Application
+          Value: fpl-notifier
+
+Outputs:
+  ServiceUrl:
+    Description: URL of the App Runner service
+    Value: !GetAtt AppRunnerService.ServiceUrl
+  
+  ServiceArn:
+    Description: ARN of the App Runner service
+    Value: !GetAtt AppRunnerService.ServiceArn
+  
+  ServiceId:
+    Description: ID of the App Runner service
+    Value: !GetAtt AppRunnerService.ServiceId
